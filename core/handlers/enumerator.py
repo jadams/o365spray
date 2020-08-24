@@ -275,9 +275,19 @@ class Enumerator:
             status = response.status_code
             body   = response.json()
             if status == 200:
-                if int(body['IfExistsResult']) == 0:
+                # It appears that both 0 and 6 response codes indicate a valid user - whereas 5 indicates a
+                # potentially personal account -- let's account for that
+                # https://www.redsiege.com/blog/2020/03/user-enumeration-part-2-microsoft-office-365/
+                # https://warroom.rsmus.com/enumerating-emails-via-office-com/
+                if int(body['IfExistsResult']) in [0,6]:
                     print("[%sVALID_USER%s]\t\t%s%s" % (text_colors.green, text_colors.reset, email, self.helper.space))
                     self.valid_accts.append(user)
+
+                elif int(body['IfExistsResult']) == 5:
+                    # This will not be added to our list of valid users as we want to avoid hitting 
+                    # personal accounts - if that really is the case... We can update this as needed
+                    print("[%sPERSONAL_ACC%s]\t\t%s%s" % (text_colors.yellow, text_colors.reset, email, self.helper.space))
+                    if self.args.debug: print("\n[DEBUG]\t\t\t%s: IfExistsResult = %d" % (email, int(body['IfExistsResult'])))
 
                 else:
                     print("[%sINVALID%s]\t\t%s%s" % (text_colors.red, text_colors.reset, email, self.helper.space), end='\r')

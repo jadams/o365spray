@@ -18,6 +18,8 @@ This tool reimplements a collection of enumeration and spray techniques research
 
 > WARNING: ActiveSync user enumeration is performed by submitting a single authentication attempt per user. If ActiveSync enumeration is run with password spraying, the tool will automatically reset the lockout timer prior to the password spray -- if enumeration is run alone, the user should be aware of the authentication attempts and reset the lockout timer manually.
 
+Office.com enumeration identifies users based on the `IfExistsResult` value returned from Microsoft. It appears that both 0 and 6 are valid response codes that indicate a real user. The response code 5 also indicates a real user, but based on the articles listed under Office.com in the Acknowledgments section, it appears that this response code might indicate this account is personal. As a result, the tool will print a user with an IfExistsResult value of 5 tagged `PERSONAL_ACC`, but will not add it to the valid_users.txt results file. The goal here is to avoid automatically adding these users to a list that will be used for password spraying, but provide the information so that the user can be manually added to the password spraying list if required/desired.
+
 OneDrive user enumeration relies on the target user(s) to have previously logged into OneDrive. If a valid user has not yet used OneDrive, their account will show as 'invalid'. This appears to be a viable solution for user enumeration against federated realms.
 
 
@@ -44,7 +46,7 @@ usage: o365spray.py [-h] [-d DOMAIN] [--validate] [--enum] [--spray]
                     [--timeout TIMEOUT] [--proxy PROXY] [--output OUTPUT]
                     [--version] [--debug]
 
-Microsoft O365 User Enumerator and Password Sprayer -- v1.3.7
+Microsoft O365 User Enumerator and Password Sprayer -- v1.3.8
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -132,6 +134,8 @@ optional arguments:
 * [@gremwell](https://github.com/gremwell)
 * User enumeration via Office.com without authentication
     * [o365enum](https://github.com/gremwell/o365enum)
+* https://www.redsiege.com/blog/2020/03/user-enumeration-part-2-microsoft-office-365/
+* https://warroom.rsmus.com/enumerating-emails-via-office-com/
 
 #### ActiveSync Code/References
 * [@grimhacker](https://bitbucket.org/grimhacker)
