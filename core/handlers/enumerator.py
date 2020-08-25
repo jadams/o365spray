@@ -25,9 +25,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class Enumerator:
     """ Perform user enumeration using Microsoft Server ActiveSync """
 
-    valid_accts  = []  # Valid account storage
-    tested_accts = []  # Tested account storage
-    helper = Helper()  # Helper functions
+    valid_accts     = []  # Valid account storage
+    valid_idp_accts = []  # Valid account, different IDP storage
+    tested_accts    = []  # Tested account storage
+    helper = Helper()     # Helper functions
 
     def __init__(self, loop, args):
         self.loop       = loop
@@ -69,8 +70,22 @@ class Enumerator:
         # Write the tested accounts
         self.helper.write_tested(self.tested_accts, "%s/enum/enumerated_accts.txt" % (self.args.output))
 
+        # Join all valid accounts
+        if len(self.valid_idp_accts) > 0:
+            # Write valid accounts + valid accounts using a different Identity Provider
+            # keeping them broken up by a single newline so the user can identify and easily
+            # remove the latter if required
+            print('\n[*] Accounts using different Identity Providers have been identified. They can be found')
+            print('    in the `enum/valid_accts.txt` file below the empty line.')
+            self.valid_accts = self.valid_accts + [''] + self.valid_idp_accts
+
         # Write the valid accounts
         self.helper.write_data(self.valid_accts, "%s/enum/valid_accts.txt" % (self.args.output))
+
+        # If valid_idp_accts is populated, remove the new line added for group isolation
+        # to allow for correct counting on tool exit
+        if len(self.valid_idp_accts) > 0:
+            self.valid_accts = [x for x in self.valid_accts if x != '']
 
 
     """ Template for HTTP Request """
@@ -275,8 +290,8 @@ class Enumerator:
             status = response.status_code
             body   = response.json()
             if status == 200:
-                # It appears that both 0 and 6 response codes indicate a valid user - whereas 5 indicates a
-                # potentially personal account -- let's account for that
+                # It appears that both 0 and 6 response codes indicate a valid user - whereas 5 indicates
+                # the use of a different identity provider -- let's account for that
                 # https://www.redsiege.com/blog/2020/03/user-enumeration-part-2-microsoft-office-365/
                 # https://warroom.rsmus.com/enumerating-emails-via-office-com/
                 if int(body['IfExistsResult']) in [0,6]:
@@ -284,10 +299,11 @@ class Enumerator:
                     self.valid_accts.append(user)
 
                 elif int(body['IfExistsResult']) == 5:
-                    # This will not be added to our list of valid users as we want to avoid hitting 
-                    # personal accounts - if that really is the case... We can update this as needed
-                    print("[%sPERSONAL_ACC%s]\t\t%s%s" % (text_colors.yellow, text_colors.reset, email, self.helper.space))
-                    if self.args.debug: print("\n[DEBUG]\t\t\t%s: IfExistsResult = %d" % (email, int(body['IfExistsResult'])))
+                    # These users will be added to an isolated list of valid users so that when written
+                    # to the final output file they can be easily identified and removed if required
+                    print("[%sVALID_USER%s]\t\t%s%s" % (text_colors.green, text_colors.reset, email, self.helper.space))
+                    if self.args.debug: print("[ DEBUG ]\t\t%s: Different Identity Provider" % email)
+                    self.valid_idp_accts.append(user)
 
                 else:
                     print("[%sINVALID%s]\t\t%s%s" % (text_colors.red, text_colors.reset, email, self.helper.space), end='\r')
