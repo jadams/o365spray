@@ -49,7 +49,7 @@ class Validator:
 
     """ Validate O365 domain via: GetUserRealm """
     def _getuserrealm(self):
-        url = "https://login.microsoftonline.com/getuserrealm.srf?login=user@{DOMAIN}&xml=1"
+        url = "https://login.microsoftonline.us/getuserrealm.srf?login=user@{DOMAIN}&xml=1"
         rsp = self._send_request(
             url.format(
                 DOMAIN=self.args.domain
@@ -81,7 +81,7 @@ class Validator:
 
     """ Validate O365 domain via: OpenID-Configuration """
     def _openid_config(self):
-        url = "https://login.microsoftonline.com/{DOMAIN}/.well-known/openid-configuration"
+        url = "https://login.microsoftonline.us/{DOMAIN}/.well-known/openid-configuration"
         rsp = self._send_request(
             url.format(
                 DOMAIN=self.args.domain

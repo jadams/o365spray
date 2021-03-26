@@ -119,7 +119,7 @@ class Enumerator:
             time.sleep(0.250)
 
             auth     = HTTPBasicAuth(email, password)
-            url      = "https://outlook.office365.com/Microsoft-Server-ActiveSync"
+            url      = "https://outlook.office365.us/Microsoft-Server-ActiveSync"
             response = self._send_request(requests.options, url, auth=auth, headers=headers)
 
             status = response.status_code
@@ -169,7 +169,7 @@ class Enumerator:
             tld    = domain_array[-1]       # Grab the TLD
             user   = user.replace(".","_")  # Replace any `.` with `_` for use in the URL
 
-            url = "https://{TENANT}-my.sharepoint.com/personal/{USERNAME}_{DOMAIN}_{TLD}/_layouts/15/onedrive.aspx".format(
+            url = "https://{TENANT}-my.sharepoint.us/personal/{USERNAME}_{DOMAIN}_{TLD}/_layouts/15/onedrive.aspx".format(
                 TENANT=tenant, USERNAME=user, DOMAIN=domain, TLD=tld
             )
             response = self._send_request(requests.get, url)
@@ -201,7 +201,7 @@ class Enumerator:
               against office.com """
     def _pre_office(self):
         # Request the base domain to collect the `client_id`
-        response = self._send_request(requests.get, "https://www.office.com")
+        response = self._send_request(requests.get, "https://www.office365.us")
 
         client_id = re.findall(b'"appId":"([^"]*)"', response.content)
 
@@ -209,7 +209,7 @@ class Enumerator:
         #   `hpgid`, `hpgact`, `hpgrequestid`
         response = self._send_request(
             requests.get,
-            "https://www.office.com/login?es=Click&ru=/&msafed=0",
+            "https://www.office365.us/login?es=Click&ru=/&msafed=0",
             allow_redirects=True
         )
 
@@ -226,7 +226,7 @@ class Enumerator:
         self.office_headers['hpgid']             = hpgid[0]
         self.office_headers['hpgact']            = hpgact[0]
         self.office_headers['Accept']            = "application/json"
-        self.office_headers['Origin']            = "https://login.microsoftonline.com"
+        self.office_headers['Origin']            = "https://login.microsoftonline.us"
 
         # Build random canary token
         self.office_headers['canary'] = ''.join(
@@ -269,7 +269,7 @@ class Enumerator:
             data = self.office_data
             data['username'] = email
 
-            url      = "https://login.microsoftonline.com/common/GetCredentialType?mkt=en-US"
+            url      = "https://login.microsoftonline.us/common/GetCredentialType?mkt=en-US"
             response = self._send_request(requests.post, url, json=data, headers=headers)
 
             status = response.status_code
@@ -315,7 +315,7 @@ class Enumerator:
 
             time.sleep(0.250)
 
-            url      = "https://outlook.office365.com/autodiscover/autodiscover.json/v1.0/{EMAIL}?Protocol=Autodiscoverv1"
+            url      = "https://outlook.office365.us/autodiscover/autodiscover.json/v1.0/{EMAIL}?Protocol=Autodiscoverv1"
             response = self._send_request(requests.get, url.format(EMAIL=email), headers=headers)
 
             status = response.status_code

